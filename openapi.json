@@ -1,0 +1,874 @@
+{
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "https://api.partscanada.com/api/v2"
+    },
+    {
+      "url": "https://sandbox-api.partscanada.com/api/v2"
+    }
+  ],
+  "info": {
+    "x-logo": {
+      "url": "https://api.partscanada.com/images/parts-canada-logo.svg",
+      "backgroundColor": "#fafafa",
+      "altText": "Parts Canada logo"
+    },
+    "title": "Parts Canada API",
+    "description": "\n# Introduction\n\nParts Canada's API is based on REST principles. Endpoints return either JSON or binary data.\n\nPlease note that Parts Canada only provides the API service. We are not able to provide the integration to your\nsystem. Please contact your software vendor for help with this.\n\nPlease note that Parts Canada does not provide software development services. We do not currently have the resources\nto assist with integrating our system with yours. Please contact a software contractor to assist should you require\nhelp.\n\nWhen your account is first created, it will be in development mode. Access to our sandbox environment will be\nprovided. Note that data in this environment may not be current, but it should be sufficient to develop your\napplication. Rate limiting is less stringent in this environment. Use the Development Base Address while developing\nyour application.\n\n```\nhttps://sandbox-api.partscanada.com/api/v2\n```\n\nWhen you are finished development and are ready to go live, let us know and we'll activate your account for\nproduction. Your original account registration e-mail contains a link for support. You will need to alter your\ncode's base address to the Production Base Address.\n\n```\nhttps://api.partscanada.com/api/v2\n```\n\nNote that when your account is in development mode, access to the production base address is restricted. Similarly,\nwhen your account is in production mode, access to the sandbox is restricted.\n\n# Security\n\nThe Parts Canada REST API is served over HTTPS. To ensure data privacy, unencrypted HTTP is not supported.\n\n# Requests\n\nAll requests must include a Bearer Token in the request headers. This Bearer Token is provided to you by Parts\nCanada upon creation of your account. **Do not share this token with anyone.** All requests are logged and\nvalidated.\n\n**Example Request:**\n```\ncurl https://api.partscanada.com/api/v2/inventory \\\n  -H \"Authorization: Bearer [token]\"\n```\n\n# Responses\n\nAll requests to endpoints will return a response. These responses will include an HTTP status code. These codes\nare based on [standard HTTP responses](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status).\n\nSome examples you may encounter while using our API:\n\n| Code | Description |\n|------|-------------|\n| 200 OK | Request was successful. |\n| 400 Bad Request | Request could not be handled due to an issue. |\n| 403 Forbidden | Account does not have access to the endpoint. |\n| 404 Not Found | Endpoint or file could not found. |\n| 429 Too Many Requests | Too many requests have been made in a period of time. |\n| 500 Internal Server Error | Server is experiencing technical difficulties. |\n| 503 Service Unavailable | API is down for maintenance. |\n",
+    "license": {
+      "name": "Custom",
+      "url": "https://api.partscanada.com"
+    },
+    "version": "v2"
+  },
+  "tags": [
+    {
+      "name": "Catalogues"
+    },
+    {
+      "name": "Images"
+    },
+    {
+      "name": "Inventory"
+    },
+    {
+      "name": "Invoices"
+    },
+    {
+      "name": "Products"
+    },
+    {
+      "name": "Statements"
+    }
+  ],
+  "paths": {
+    "/catalogues": {
+      "get": {
+        "tags": [
+          "Catalogues"
+        ],
+        "summary": "Get list of catalogues",
+        "description": "This list contains information regarding our catalogues. Use this listing to obtain the URL for downloading\nfull catalogue images. Note that all our catalogues may not be listed here. We will add them as they become\navailable.\n\n**Rate Limit**: 10 requests per minute\n",
+        "operationId": "catalogue-list",
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Catalogue"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to this endpoint is not available."
+          }
+        }
+      }
+    },
+    "/catalogues/{name}": {
+      "get": {
+        "tags": [
+          "Catalogues"
+        ],
+        "summary": "Get details for a catalogue",
+        "description": "For each result in the catalogue listing response, there is a key entitled `name`. You can use this value\nto obtain detailed information for that catalogue. If you would like to get all the images for a particular\ncatalogue, refer to the archive key. The value of this key contains a URL which you can use to initiate the\ndownload. (Note that these archives are usually 4-5 GB or larger in size.)\n\n**Rate Limit**: 10 requests per minute\n",
+        "operationId": "catalogue-details",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Name of catalogue to return.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "atv-utv",
+                "bicycle",
+                "fatbook",
+                "helmet-and-apparel",
+                "offroad",
+                "oldbook",
+                "snow",
+                "street",
+                "tire-and-service"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Catalogue"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to this endpoint is not available."
+          },
+          "404": {
+            "description": "Requested catalogue is not available."
+          }
+        }
+      }
+    },
+    "/catalogues/{name}/parts": {
+      "get": {
+        "tags": [
+          "Catalogues"
+        ],
+        "summary": "Download parts from a catalogue",
+        "description": "This file contains all the part numbers from the specified catalogue.\n\nThe downloaded file is in ZIP format. The ZIP contains a CSV file.\n\n**Rate Limit**: 10 requests per day\n",
+        "operationId": "catalogue-parts",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Name of catalogue to return.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "atv-utv",
+                "bicycle",
+                "fatbook",
+                "helmet-and-apparel",
+                "offroad",
+                "oldbook",
+                "snow",
+                "street",
+                "tire-and-service"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to this endpoint is not available."
+          },
+          "404": {
+            "description": "Requested catalogue is not available."
+          }
+        }
+      }
+    },
+    "/images/{part_number}/download": {
+      "get": {
+        "tags": [
+          "Images"
+        ],
+        "summary": "Download images",
+        "description": "This file contains images associated with the specified list of items. You may specify up to 10 unique items\nfor each request. Note that there may be more than one image for each item. Also note that not all items have\nimages.\n\nThe downloaded file is in ZIP format. The ZIP contains a CSV file.\n\nBy downloading this file, you are agreeing to the usage terms set forth by Parts Canada. A text file explaining\nthese terms is included in the file.\n\nIf you are looking for much larger batches of images, please see the\n[catalogue details](#tag/Catalogues/operation/catalogue-details) endpoint, which includes all images from the\nspecified catalogue.\n\n**Rate Limit**: 10 requests per 24 hours\n",
+        "operationId": "image-download",
+        "parameters": [
+          {
+            "name": "part_number",
+            "in": "path",
+            "description": "Part number of image to return.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to this endpoint is not available."
+          },
+          "404": {
+            "description": "Requested image(s) not available."
+          }
+        }
+      }
+    },
+    "/inventory": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "summary": "Download inventory file",
+        "description": "This file contains several fields, including pricing, description, brand and discount category. This file\nis created nightly between 12am and 6am MST. You should make your requests after this time frame to ensure\nyou get the most recent data.\n\nThe downloaded file is in ZIP format. The ZIP contains a CSV file.\n\nThe following list of fields are available in the inventory detail file:\n\n  - Part Number\n  - Old Part Number\n  - Manufacturer Part Number\n  - UPC Code\n  - Brand\n  - Description EN\n  - Description FR\n  - MSRP Latest\n  - Dealer Price\n  - Dealer Net Price\n  - Depth\n  - Width\n  - Height\n  - Weight\n  - Commodity Code\n  - Country of Origin\n  - Case Qty\n  - CAL Qty Available\n  - Lon Qty Available\n  - Description Long EN\n  - Description Long FR\n  - Multiline Discount\n  - Second Last MSRP\n\n**Rate Limit**: 10 requests per 24 hours\n",
+        "operationId": "inventory-download",
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to this endpoint is not available."
+          },
+          "404": {
+            "description": "Inventory file is not available."
+          }
+        }
+      }
+    },
+    "/inventory/extended": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "summary": "Download extended inventory file",
+        "description": "This file contains fields beyond those included in the standard inventory file. These include tariff code,\nhazardous/dangerous code, dealer net price and various fees and charges flags.\n\nThe downloaded file is in ZIP format. The ZIP contains a CSV file.\n\nThe following list of fields are available in the extended inventory detail file:\n\n  - Part Number\n  - Tariff Code\n  - Hazard/Dangerous Code\n  - Dealer Net Price\n  - Flat Fee\n  - Large Tracks Charge\n  - Regular Tracks Charge\n  - Tires ATV Large Charge\n  - Tires ATV Small Charge\n  - Tires MC Charge\n  - Wheels ATV Charge\n  - Wheels MC Charge\n\n**Rate Limit**: 10 requests per 24 hours\n",
+        "operationId": "inventory-extended-download",
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to this endpoint is not available."
+          },
+          "404": {
+            "description": "Extended inventory file is not available."
+          }
+        }
+      }
+    },
+    "/inventory/quantities": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "summary": "Download inventory quantity file",
+        "description": "This file contains a list of inventory quantities.\n\nThe downloaded file is in ZIP format. The ZIP contains a CSV file.\n\n**Rate Limit**: 1 request per 2 hours\n",
+        "operationId": "inventory-quantities-download",
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to this endpoint is not available."
+          },
+          "404": {
+            "description": "Inventory quantities file is not available."
+          }
+        }
+      }
+    },
+    "/inventory/{part_number}/stock": {
+      "get": {
+        "tags": [
+          "Inventory"
+        ],
+        "summary": "Get inventory stock information",
+        "description": "Retrieves available quantity for an item, or list of items.\n\nTo query for multiple items, supply the part numbers in a comma-delimited list.\n\n**Rate Limit**: 10 requests per minute\n",
+        "operationId": "inventory-stock",
+        "parameters": [
+          {
+            "name": "part_number",
+            "in": "path",
+            "description": "Part number.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryStock"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to this endpoint is not available."
+          },
+          "404": {
+            "description": "Inventory stock is not available."
+          }
+        }
+      }
+    },
+    "/products/commodity-codes/download": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Download commodity code file",
+        "description": "This file contains the product categories and subcategories.\n\nThe downloaded file is in ZIP format. The ZIP contains a CSV file.\n\n**Rate Limit**: 10 requests per day\n",
+        "operationId": "product-commodity-codes-download",
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to this endpoint is not available."
+          },
+          "404": {
+            "description": "Commodity codes file is not available."
+          }
+        }
+      }
+    },
+    "/products/features/{catalogue}/download": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Download product features file",
+        "description": "This file contains product features for the specified catalogue.\n\nThe downloaded file is in ZIP format. The ZIP contains a CSV file.\n\nBy default, all features added or updated since your last download will be included. If you have never\npreviously downloaded a file, everything will be included. If no features have been added or updated since your\nlast download, a string response of \"No updates since your last download.\" will be returned.\n\nYou may optionally specify a start date as a query parameter. This limits the data to all features updated\nsince the specified date.\n\n**Rate Limit**: 10 requests per day\n",
+        "operationId": "product-features-download",
+        "parameters": [
+          {
+            "name": "catalogue",
+            "in": "path",
+            "description": "Name of catalogue.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "atv-utv",
+                "bicycle",
+                "fatbook",
+                "helmet-and-apparel",
+                "offroad",
+                "oldbook",
+                "snow",
+                "street",
+                "tire-and-service"
+              ]
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "Start date of feature text update",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "No updates since your last download."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to this endpoint is not available."
+          },
+          "404": {
+            "description": "Product features file is not available."
+          }
+        }
+      }
+    },
+    "/statements/{date}/{account}/download": {
+      "get": {
+        "tags": [
+          "Statements"
+        ],
+        "summary": "Download statement",
+        "description": "Download a PDF statement for the requested month and year. You may request either a regular or booking\norder type.\n\n**Rate Limit**: 10 requests per hour\n",
+        "operationId": "statement-download",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "path",
+            "description": "Year and month date in YYYY-MM format.",
+            "example": "2023-04",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "account",
+            "in": "path",
+            "description": "Account type.",
+            "example": "regular",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "regular",
+                "booking"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to this endpoint is not available."
+          },
+          "404": {
+            "description": "Statement file is not available."
+          }
+        }
+      }
+    },
+    "/invoices": {
+      "get": {
+        "tags": [
+          "Invoices"
+        ],
+        "summary": "Get invoices",
+        "description": "Retrieves all invoices, with most recent first. Results are returned in sets of 25 (use the `limit` parameter\nto change this). Subsequent result sets can be retrieved using the `page` parameter.\n\n**Rate Limit**: 10 requests per minute\n",
+        "operationId": "invoice-list",
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "Start date of invoice range.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "description": "End date of invoice range.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "order_type",
+            "in": "query",
+            "description": "Type of order.",
+            "required": false,
+            "example": "regular",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "regular",
+                "booking",
+                "credit",
+                "drop"
+              ]
+            }
+          },
+          {
+            "name": "invoice_number",
+            "in": "query",
+            "description": "Invoice number",
+            "required": false,
+            "example": "INV01234567",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "order_number",
+            "in": "query",
+            "description": "Order number.",
+            "required": false,
+            "example": "SO0123456",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "po_number",
+            "in": "query",
+            "description": "Purchase order number.",
+            "required": false,
+            "example": "MyPO",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rma_number",
+            "in": "query",
+            "description": "RMA number.",
+            "required": false,
+            "example": "AB1234",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of invoices to return, between 1 and 25.",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The offset of the invoices returned, in conjunction with limit.",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "headers": {
+              "X-Pagination-Count": {
+                "description": "Total number of invoices in the data set",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Pagination-Page": {
+                "description": "Current page of the data set",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Pagination-Limit": {
+                "description": "Number of invoices per page of the data set",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Pagination-First": {
+                "description": "URI for the first page of data",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Pagination-Previous": {
+                "description": "URI for the previous page of data",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Pagination-Next": {
+                "description": "URI for the next page of data",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Pagination-Last": {
+                "description": "URI for the last page of data",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invoice"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An issue was encountered. Check query parameters."
+          },
+          "403": {
+            "description": "Access to this endpoint is not available."
+          }
+        }
+      }
+    },
+    "/invoices/{invoice_number}": {
+      "get": {
+        "tags": [
+          "Invoices"
+        ],
+        "summary": "Get invoice details",
+        "description": "Retrieves details for a specific invoice.\n\nFor each result in the invoice listing response array, there is a key entitled invoiceNumber. You can use this\nvalue to obtain detailed information for that invoice.\n\n**Rate Limit**: 10 requests per minute\n",
+        "operationId": "invoice-details",
+        "parameters": [
+          {
+            "name": "invoice_number",
+            "in": "path",
+            "description": "Invoice number.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invoice"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to this endpoint is not available."
+          }
+        }
+      }
+    },
+    "/invoices/{invoice_number}/download": {
+      "get": {
+        "tags": [
+          "Invoices"
+        ],
+        "summary": "Download invoice",
+        "description": "Downloads a PDF of the specified invoice.\n\n**Rate Limit**: 10 requests per hour\n",
+        "operationId": "invoice-download",
+        "parameters": [
+          {
+            "name": "invoice_number",
+            "in": "path",
+            "description": "Invoice number.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to this endpoint is not available."
+          },
+          "404": {
+            "description": "Invoice file is not available."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Catalogue": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Catalogue name.",
+            "example": "street"
+          },
+          "year": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Catalogue year.",
+            "example": 2023
+          },
+          "title_en": {
+            "type": "string",
+            "description": "Catalogue title (English).",
+            "example": "STREET"
+          },
+          "title_fr": {
+            "type": "string",
+            "description": "Catalogue title (French).",
+            "example": "PIÈCES DE ROUTE"
+          },
+          "browse_en": {
+            "type": "string",
+            "format": "url",
+            "description": "Online catalogue link (English).",
+            "example": "https://www.partscanada.com/catalogue/2023/street/en/"
+          },
+          "browse_fr": {
+            "type": "string",
+            "format": "url",
+            "description": "Online catalogue link (French).",
+            "example": "https://www.partscanada.com/catalogue/2023/street/fr/"
+          },
+          "archive": {
+            "type": "string",
+            "format": "url",
+            "description": "Catalogue download link (ZIP format).",
+            "example": "https://f005.backblazeb2.com/file/public-catalogues/2024_street.zip"
+          }
+        }
+      },
+      "InventoryStock": {
+        "type": "object",
+        "properties": {
+          "part_number": {
+            "type": "string",
+            "description": "Part number.",
+            "example": "YTX14-BS"
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Quantity.",
+            "format": "int32",
+            "example": 5
+          }
+        }
+      },
+      "Invoice": {
+        "type": "object",
+        "properties": {
+          "account_number": {
+            "type": "string",
+            "description": "Account number.",
+            "example": 1234567
+          },
+          "amount": {
+            "type": "number",
+            "format": "float",
+            "description": "Total dollar amount of order.",
+            "example": 257.38
+          },
+          "carrier": {
+            "type": "string",
+            "description": "Carrier name.",
+            "example": "UPS"
+          },
+          "carrier_id": {
+            "type": "string",
+            "description": "Carrier name.",
+            "example": "UPS-EXP"
+          },
+          "date": {
+            "type": "string",
+            "description": "Date of order.",
+            "example": "2023-03-18"
+          },
+          "item_quantity": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Quantity of items in order.",
+            "example": 5
+          },
+          "invoice_number": {
+            "type": "string",
+            "description": "Invoice number.",
+            "example": "INV01234567"
+          },
+          "order_number": {
+            "type": "string",
+            "description": "Order number.",
+            "example": "SO1234567"
+          },
+          "order_type": {
+            "type": "string",
+            "enum": [
+              "regular",
+              "booking",
+              "drop",
+              "credit"
+            ],
+            "description": "Order type.",
+            "example": "drop"
+          },
+          "po_number": {
+            "type": "string",
+            "description": "Purchase order number.",
+            "example": "PO order 42"
+          },
+          "rma_number": {
+            "type": "string",
+            "description": "RMA number.",
+            "example": null
+          },
+          "tracking_numbers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Tracking numbers.",
+            "example": [
+              "1ZF01V001001234567",
+              "1ZF01V001001234569"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

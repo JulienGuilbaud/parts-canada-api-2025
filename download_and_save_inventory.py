@@ -1,8 +1,6 @@
 import requests
 import os
 import zipfile
-import io
-from urllib.parse import urljoin
 from dotenv import load_dotenv
 
 # --- Configuration ---
@@ -17,7 +15,8 @@ BASE_URL = "https://sandbox-api.partscanada.com/api/v2"
 
 # Dossier de destination pour les fichiers extraits
 OUTPUT_DIR = "source"
-OUTPUT_FILENAME = "inventory.csv"
+ZIP_FILENAME = "inventory.zip"
+CSV_FILENAME = "inventory.csv"
 
 # --- Fonctions ---
 
@@ -31,7 +30,7 @@ def print_colored(text, color):
 
 def download_and_save_inventory():
     """
-    Télécharge le fichier d'inventaire, le décompresse et l'enregistre
+    Télécharge, décompresse et enregistre le fichier d'inventaire
     dans le dossier 'source'.
     """
     print_colored("--- Lancement du téléchargement de l'inventaire ---", "header")
@@ -42,40 +41,44 @@ def download_and_save_inventory():
         print_colored("Veuillez la définir dans votre fichier .env.", "warning")
         return
 
+    # Création du dossier 'source' s'il n'existe pas
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
+        print_colored(f"  - Dossier '{OUTPUT_DIR}' créé.", "green")
+
     # Préparation de la requête
     endpoint = "/inventory"
-    url = urljoin(BASE_URL, endpoint)
+    url = f"{BASE_URL}{endpoint}"
     headers = {'Authorization': f'Bearer {API_KEY}'}
+    zip_path = os.path.join(OUTPUT_DIR, ZIP_FILENAME)
 
     try:
-        # Appel à l'API
+        # Étape 1: Télécharger et enregistrer le fichier ZIP
         print_colored(f"> Appel de l'API : {url}", "blue")
         response = requests.get(url, headers=headers, timeout=60, stream=True)
-        response.raise_for_status() # Lève une exception en cas d'erreur HTTP (4xx ou 5xx)
-        print_colored("  - Téléchargement du fichier ZIP terminé.", "green")
+        response.raise_for_status()
+        
+        with open(zip_path, 'wb') as f:
+            f.write(response.content)
+        print_colored(f"  - Fichier ZIP sauvegardé dans : {zip_path}", "green")
 
-        # Décompression du fichier en mémoire
-        with zipfile.ZipFile(io.BytesIO(response.content)) as z:
-            # Trouve le premier fichier .csv dans l'archive
-            csv_filename = next((name for name in z.namelist() if name.lower().endswith('.csv')), None)
+        # Étape 2: Décompresser le fichier ZIP depuis le disque
+        print_colored(f"> Décompression de {zip_path}...", "blue")
+        with zipfile.ZipFile(zip_path, 'r') as z:
+            csv_internal_path = next((name for name in z.namelist() if name.lower().endswith('.csv')), None)
             
-            if not csv_filename:
+            if not csv_internal_path:
                 print_colored("Erreur : Aucun fichier CSV trouvé dans l'archive ZIP.", "fail")
                 return
 
-            print_colored(f"  - Fichier CSV trouvé dans l'archive : {csv_filename}", "green")
+            print_colored(f"  - Fichier CSV trouvé dans l'archive : {csv_internal_path}", "green")
 
-            # Création du dossier 'source' s'il n'existe pas
-            if not os.path.exists(OUTPUT_DIR):
-                os.makedirs(OUTPUT_DIR)
-                print_colored(f"  - Dossier '{OUTPUT_DIR}' créé.", "green")
-
-            # Extraction et sauvegarde du fichier
-            output_path = os.path.join(OUTPUT_DIR, OUTPUT_FILENAME)
-            with z.open(csv_filename) as source_file, open(output_path, "wb") as target_file:
+            # Étape 3: Extraire et enregistrer le fichier CSV
+            output_path = os.path.join(OUTPUT_DIR, CSV_FILENAME)
+            with z.open(csv_internal_path) as source_file, open(output_path, "wb") as target_file:
                 target_file.write(source_file.read())
             
-            print_colored(f"  - Fichier sauvegardé avec succès dans : {output_path}", "green")
+            print_colored(f"  - Fichier CSV sauvegardé avec succès dans : {output_path}", "green")
 
     except requests.exceptions.RequestException as e:
         print_colored(f"Erreur lors de la requête API : {e}", "fail")
@@ -83,6 +86,12 @@ def download_and_save_inventory():
         print_colored("Erreur : Le fichier téléchargé n'est pas une archive ZIP valide.", "fail")
     except Exception as e:
         print_colored(f"Une erreur inattendue est survenue : {e}", "fail")
+    finally:
+        # Étape 4: Nettoyage du fichier ZIP
+        if os.path.exists(zip_path):
+            os.remove(zip_path)
+            print_colored(f"  - Fichier temporaire {zip_path} supprimé.", "green")
+
 
     print_colored("\n--- Opération terminée ---", "header")
 

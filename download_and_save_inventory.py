@@ -1,24 +1,16 @@
+# Nom du fichier : download_and_save_inventory.py
+# (Version modifiée pour être importable)
+
 import requests
 import os
 import zipfile
 from dotenv import load_dotenv
 
 # --- Configuration ---
-# Charge les variables d'environnement à partir du fichier .env
 load_dotenv()
-
-# Récupère la clé d'API depuis la variable d'environnement PARTS_CANADA_API_KEY
 API_KEY = os.environ.get('PARTS_CANADA_API_KEY')
-
-# URL de base pour l'environnement de développement (Sandbox)
 BASE_URL = "https://sandbox-api.partscanada.com/api/v2"
-
-# Dossier de destination pour les fichiers extraits
 OUTPUT_DIR = "source"
-ZIP_FILENAME = "inventory.zip"
-CSV_FILENAME = "inventory.csv"
-
-# --- Fonctions ---
 
 def print_colored(text, color):
     """Affiche du texte en couleur dans le terminal."""
@@ -28,73 +20,68 @@ def print_colored(text, color):
     }
     print(f"{colors.get(color, '')}{text}{colors['endc']}")
 
-def download_and_save_inventory():
+def download_inventory_file(endpoint, zip_filename, csv_filename):
     """
-    Télécharge, décompresse et enregistre le fichier d'inventaire
-    dans le dossier 'source'.
+    Fonction générique pour télécharger, décompresser et enregistrer un fichier
+    depuis l'API de Parts Canada.
+    Retourne le chemin du fichier CSV final.
     """
-    print_colored("--- Lancement du téléchargement de l'inventaire ---", "header")
+    print_colored(f"--- Lancement du téléchargement pour l'endpoint : {endpoint} ---", "header")
 
-    # Vérification de la clé d'API
     if not API_KEY:
-        print_colored("Erreur : La clé d'API (PARTS_CANADA_API_KEY) n'est pas définie.", "fail")
-        print_colored("Veuillez la définir dans votre fichier .env.", "warning")
-        return
+        raise ValueError("La clé d'API (PARTS_CANADA_API_KEY) n'est pas définie.")
 
-    # Création du dossier 'source' s'il n'existe pas
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
         print_colored(f"  - Dossier '{OUTPUT_DIR}' créé.", "green")
 
-    # Préparation de la requête
-    endpoint = "/inventory"
     url = f"{BASE_URL}{endpoint}"
     headers = {'Authorization': f'Bearer {API_KEY}'}
-    zip_path = os.path.join(OUTPUT_DIR, ZIP_FILENAME)
+    zip_path = os.path.join(OUTPUT_DIR, zip_filename)
+    output_path = os.path.join(OUTPUT_DIR, csv_filename)
 
     try:
-        # Étape 1: Télécharger et enregistrer le fichier ZIP
         print_colored(f"> Appel de l'API : {url}", "blue")
-        response = requests.get(url, headers=headers, timeout=60, stream=True)
+        response = requests.get(url, headers=headers, timeout=120, stream=True)
         response.raise_for_status()
         
         with open(zip_path, 'wb') as f:
             f.write(response.content)
         print_colored(f"  - Fichier ZIP sauvegardé dans : {zip_path}", "green")
 
-        # Étape 2: Décompresser le fichier ZIP depuis le disque
         print_colored(f"> Décompression de {zip_path}...", "blue")
         with zipfile.ZipFile(zip_path, 'r') as z:
             csv_internal_path = next((name for name in z.namelist() if name.lower().endswith('.csv')), None)
             
             if not csv_internal_path:
-                print_colored("Erreur : Aucun fichier CSV trouvé dans l'archive ZIP.", "fail")
-                return
+                raise FileNotFoundError("Aucun fichier CSV trouvé dans l'archive ZIP.")
 
             print_colored(f"  - Fichier CSV trouvé dans l'archive : {csv_internal_path}", "green")
-
-            # Étape 3: Extraire et enregistrer le fichier CSV
-            output_path = os.path.join(OUTPUT_DIR, CSV_FILENAME)
+            
             with z.open(csv_internal_path) as source_file, open(output_path, "wb") as target_file:
                 target_file.write(source_file.read())
             
             print_colored(f"  - Fichier CSV sauvegardé avec succès dans : {output_path}", "green")
+            return output_path
 
     except requests.exceptions.RequestException as e:
         print_colored(f"Erreur lors de la requête API : {e}", "fail")
+        raise
     except zipfile.BadZipFile:
         print_colored("Erreur : Le fichier téléchargé n'est pas une archive ZIP valide.", "fail")
-    except Exception as e:
-        print_colored(f"Une erreur inattendue est survenue : {e}", "fail")
+        raise
     finally:
-        # Étape 4: Nettoyage du fichier ZIP
         if os.path.exists(zip_path):
             os.remove(zip_path)
             print_colored(f"  - Fichier temporaire {zip_path} supprimé.", "green")
+        print_colored("\n--- Opération terminée ---", "header")
 
-
-    print_colored("\n--- Opération terminée ---", "header")
-
-# --- Point d'entrée du script ---
+# Cette partie ne s'exécute que si vous lancez ce script directement
 if __name__ == "__main__":
-    download_and_save_inventory()
+    print("Ce script est conçu pour être importé. Pour tester, lancez une fonction spécifique.")
+    try:
+        # Test pour le téléchargement de l'inventaire principal
+        download_inventory_file(endpoint="/inventory", zip_filename="inventory.zip", csv_filename="inventory.csv")
+    except Exception as e:
+        print(f"Le test a échoué : {e}")
+

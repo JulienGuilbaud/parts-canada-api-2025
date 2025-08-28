@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord - API Parts Canada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-idle { background-color: #e5e7eb; color: #4b5563; }
+        .status-loading { background-color: #dbeafe; color: #1d4ed8; }
+        .status-success { background-color: #d1fae5; color: #065f46; }
+        .status-error { background-color: #fee2e2; color: #991b1b; }
+        .btn-primary {
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-primary:disabled {
+            transform: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 flex items-center justify-center min-h-screen">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-2xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Téléchargement de l'Inventaire</h1>
+            <p class="text-gray-600 mt-1">API Parts Canada</p>
+        </header>
+
+        <main>
+            <section class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-medium">Fichier d'inventaire principal</h3>
+                        <p class="text-sm text-gray-500 mt-1">Contient les prix, descriptions, marques, etc.</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span id="status-inventory" class="status-badge status-idle">Prêt</span>
+                        <button id="launch-button" onclick="triggerExtraction('inventory')" class="btn-primary bg-blue-600 text-white px-5 py-2.5 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                            Lancer le Téléchargement
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center mt-12 text-sm text-gray-500">
+            <p>Développé pour l'API Parts Canada v2</p>
+        </footer>
+    </div>
+
+    <script>
+        // --- Logique du Frontend ---
+
+        // Met à jour le badge de statut et le bouton
+        function updateStatus(status, message) {
+            const statusEl = document.getElementById('status-inventory');
+            const buttonEl = document.getElementById('launch-button');
+
+            statusEl.textContent = message;
+            statusEl.className = `status-badge status-${status}`;
+            buttonEl.disabled = (status === 'loading');
+        }
+
+        // Fonction principale pour déclencher l'extraction
+        async function triggerExtraction() {
+            const endpoint = '/download/inventory';
+            console.log(`Lancement de l'extraction pour : ${endpoint}`);
+            updateStatus('loading', 'En cours...');
+
+            try {
+                // Appel au serveur backend local
+                const response = await fetch(`http://127.0.0.1:5000${endpoint}`);
+                
+                if (!response.ok) {
+                    const errorResult = await response.json();
+                    throw new Error(errorResult.error || `Erreur du serveur: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                console.log('Réponse du serveur:', result);
+                updateStatus('success', 'Terminé');
+
+            } catch (error) {
+                console.error('Erreur lors de l\'extraction:', error);
+                updateStatus('error', 'Erreur');
+            } finally {
+                // Réinitialise le statut après 4 secondes
+                setTimeout(() => {
+                    updateStatus('idle', 'Prêt');
+                }, 4000);
+            }
+        }
+    </script>
+</body>
+</html>

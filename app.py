@@ -52,7 +52,8 @@ def open_browser():
 
 # --- Point d'entrée du serveur ---
 if __name__ == '__main__':
- 
-    
+    # Ouvre le navigateur après un court délai pour laisser le temps au serveur de démarrer
+    if not os.environ.get("WERKZEUG_RUN_MAIN"):
+        Timer(1, open_browser).start()
     # Lance le serveur en mode débogage, accessible sur votre machine locale
     app.run(debug=True, port=5000)

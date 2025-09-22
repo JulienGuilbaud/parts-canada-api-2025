@@ -1,6 +1,7 @@
 # Fichiers d'environnement - Ne jamais les partager !
 .env
-
+# Fichiers perso avec des clés secrètes - Ne jamais les partager !
+test.jg
 # Dépendances et caches Python
 __pycache__/
 *.pyc

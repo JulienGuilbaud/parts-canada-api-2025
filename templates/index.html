@@ -7,39 +7,69 @@
 </head>
 <body>
     <div>
-        <h1>Lancer le Téléchargement de l'Inventaire</h1>
+        <h1>Fichiers Inventaire</h1>
         <p>Cliquez sur le bouton pour télécharger le dernier fichier d'inventaire.</p>
-        
-        <form action="{{ url_for('lancer_telechargement') }}" method="post">
-            <button type="submit">Démarrer le Téléchargement</button>
+        <form action="{{ url_for('lancer_telechargement_inventaire') }}" method="post">
+            <button type="submit">Démarrer le Téléchargement de l'Inventaire</button>
         </form>
-
         <h2>État du dossier d'inventaire</h2>
-        
-        {% if files %}
+        {% if inventory_files %}
             <table border="1">
                 <thead>
                     <tr>
-                        <th>Nom du fichier</th>
+                        <th>Nom</th>
+                        <th>Type</th>
                         <th>Dernière modification</th>
                         <th>Taille (Mo)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for file in files %}
+                    {% for item in inventory_files %}
                     <tr>
-                        <td>{{ file.name }}</td>
-                        <td>{{ file.mod_date }}</td>
-                        <td>{{ file.size_mo }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.type }}</td>
+                        <td>{{ item.mod_date }}</td>
+                        <td>{{ item.size_mo }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         {% else %}
-            <p>Le dossier <strong>INVENTAIRE-PARTS-CANADA</strong> est vide ou n'a pas encore été créé.</p>
+            <p>Le dossier <strong>INVENTAIRE-PARTS-CANADA</strong> est vide.</p>
         {% endif %}
         
         <hr>
+
+        <h1>Catalogues SNOW </h1>
+        <p>Entrez le nom du catalogue (ex: 'fatbook') et cliquez sur le bouton.</p>
+        <form action="{{ url_for('lancer_telechargement_catalogue_snow') }}" method="post">
+            <button type="submit">Démarrer le Téléchargement du Catalogue</button>
+        </form>
+        <h2>État du dossier des catalogues</h2>
+        {% if catalog_files %}
+             <table border="1">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Type</th>
+                        <th>Dernière modification</th>
+                        <th>Taille (Mo)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in catalog_files %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.type }}</td>
+                        <td>{{ item.mod_date }}</td>
+                        <td>{{ item.size_mo }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Le dossier <strong>CATALOGUE-SNOW</strong> est vide.</p>
+        {% endif %}
 
     </div>
 </body>

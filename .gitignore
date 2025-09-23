@@ -9,4 +9,5 @@ venv/
 .venv/
 
 # Fichiers téléchargés par l'application
-DONNÉES-TÉLÉCHARGÉES/
+INVENTAIRE-PARTS-CANADA/
+CATALOGUES-snow/

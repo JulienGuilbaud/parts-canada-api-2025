@@ -21,7 +21,7 @@ def download_inventory_file(endpoint: str):
     # Récupérer les configurations depuis les variables d'environnement
     base_url = os.getenv("API_BASE_URL")
     bearer_token = os.getenv("PARTS_CANADA_API_TOKEN")
-    target_folder = os.getenv("DOWNLOAD_FOLDER", "DONNÉES-TÉLÉCHARGÉES")
+    target_folder = "INVENTAIRE-PARTS-CANADA"
 
     if not base_url or not bearer_token:
         raise ValueError("Les variables d'environnement API_BASE_URL et PARTS_CANADA_API_TOKEN doivent être définies.")
@@ -47,7 +47,7 @@ def download_inventory_file(endpoint: str):
             os.makedirs(target_folder)
             print(f"Dossier '{target_folder}' créé.")
 
-        # Étape 3 : Décompresser le fichier et trouver le nom du CSV
+        # Étape 3 : Décompresser le fichier
         with zipfile.ZipFile(io.BytesIO(response.content)) as zf:
             print("Décompression du fichier en cours...")
 

@@ -31,3 +31,25 @@ def get_folder_content(folder_name):
             except Exception as e:
                 print(f"Impossible de lire les propriétés de {item_name}: {e}")
     return items_properties
+
+if __name__ == "__main__":
+    # Ce bloc est exécuté uniquement lorsque le script est lancé directement.
+    # Il sert à tester la fonction get_folder_content de manière autonome.
+    
+
+    # 1. Définir et créer un environnement de test.
+    test_folder = "CATALOGUES-snow"
+    
+
+    print(f"--- Début du test pour get_folder_content ---")
+    
+
+    # 2. Appeler la fonction à tester sur le dossier existant.
+    print(f"\nAppel de get_folder_content('{test_folder}')...")
+    folder_contents = get_folder_content(test_folder)
+    print(f"Contenu du dossier '{test_folder}':")
+    print(folder_contents)
+    print(f"--- Fin du test pour get_folder_content ---")
+
+
+

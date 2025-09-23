@@ -8,7 +8,7 @@
 <body>
     <div>
         <h1>Fichiers Inventaire</h1>
-        <p>Cliquez sur le bouton pour télécharger le dernier fichier d'inventaire.</p>
+        
         <form action="{{ url_for('lancer_telechargement_inventaire') }}" method="post">
             <button type="submit">Démarrer le Téléchargement de l'Inventaire</button>
         </form>
@@ -41,11 +41,11 @@
         <hr>
 
         <h1>Catalogues SNOW </h1>
-        <p>Entrez le nom du catalogue (ex: 'fatbook') et cliquez sur le bouton.</p>
+
         <form action="{{ url_for('lancer_telechargement_catalogue_snow') }}" method="post">
             <button type="submit">Démarrer le Téléchargement du Catalogue</button>
         </form>
-        <h2>État du dossier des catalogues</h2>
+        <h2>État du dossier Catalogue SNOW</h2>
         {% if catalog_files %}
              <table border="1">
                 <thead>

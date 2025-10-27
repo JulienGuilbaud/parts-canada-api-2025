@@ -1,58 +1,114 @@
-from flask import Flask, render_template, redirect, url_for, request, flash
-import os
-from dotenv import load_dotenv
-
-# Importez vos fonctions depuis vos fichiers séparés
+from flask import Flask, render_template, redirect, url_for, request
 from download_and_save_inventory import download_inventory_file
 from download_and_save_catalog_details import download_and_save_catalog_files
 from get_folder_info import get_folder_content
-
-# Charger les variables d'environnement
-load_dotenv()
+from download_commodity_codes import download_commodity_codes_file
+from transform_commodity import transformer_codes_commodite
+# --- NOUVEL AJOUT ---
+from download_extended_inventory import download_extended_inventory_file
+# --- FIN DE L'AJOUT ---
 
 app = Flask(__name__)
-# Une clé secrète est requise pour utiliser les messages flash
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "une-cle-secrete-par-defaut")
+
+# --- CONFIGURATION DE LA LISTE DES CATALOGUES ---
+# (Reste inchangé)
+CATALOGUES_A_GERER = [
+    "snow",
+    "fatbook",
+    "street",
+    "atv-utv",
+    "offroad",
+    "helmet-and-apparel",
+    "bicycle",
+    "tire-and-service",
+    "oldbook"
+]
+# ------------------------------------------------
 
 @app.route('/')
 def index():
+    """
+    Affiche la page d'accueil avec l'état des dossiers.
+    """
     inventory_files = get_folder_content("INVENTAIRE-PARTS-CANADA")
+    commodity_files = get_folder_content("COMMODITY-CODES")
     
-    # Listez ici tous les catalogues que vous voulez gérer
-    # Pour en ajouter un, il suffit d'ajouter son nom à cette liste
-    managed_catalogs = ["snow", "fatbook", "street", "atv-utv", "offroad", "tire-and-service"]
-    
-    # Récupère les informations pour chaque dossier de catalogue
-    catalog_files_data = {
-        name: get_folder_content(f"CATALOGUES-{name}") for name in managed_catalogs
-    }
-        
-    return render_template('index.html', 
-                           inventory_files=inventory_files, 
-                           catalog_data=catalog_files_data)
+    # --- NOUVEL AJOUT ---
+    extended_inventory_files = get_folder_content("INVENTAIRE-ETENDU-PARTS-CANADA")
+    # --- FIN DE L'AJOUT ---
+
+    # Récupérer les infos pour tous les catalogues gérés
+    catalog_data = {}
+    for catalog_name in CATALOGUES_A_GERER:
+        folder_name = f"CATALOGUES-{catalog_name}"
+        catalog_data[catalog_name] = {
+            'name': catalog_name,
+            'folder_name': folder_name,
+            'files': get_folder_content(folder_name)
+        }
+
+    return render_template(
+        'index.html', 
+        inventory_files=inventory_files,
+        commodity_files=commodity_files,
+        # --- NOUVEL AJOUT ---
+        extended_inventory_files=extended_inventory_files,
+        # --- FIN DE L'AJOUT ---
+        catalog_data=catalog_data
+    )
 
 @app.route('/lancer-telechargement-inventaire', methods=['POST'])
 def lancer_telechargement_inventaire():
+    """
+    Route pour démarrer le téléchargement de l'inventaire principal.
+    """
     try:
-        download_inventory_file(endpoint="/inventory")
-        flash("Téléchargement de l'inventaire réussi.", "success")
+        download_inventory_file()
     except Exception as e:
-        flash(f"Une erreur est survenue lors du téléchargement de l'inventaire : {e}", "error")
+        print(f"Une erreur est survenue lors du téléchargement de l'inventaire : {e}")
     return redirect(url_for('index'))
 
-# --- NOUVELLE ROUTE DYNAMIQUE ---
+# --- NOUVELLE ROUTE ---
+@app.route('/lancer-telechargement-inventaire-etendu', methods=['POST'])
+def lancer_telechargement_inventaire_etendu():
+    """
+    Route pour démarrer le téléchargement de l'inventaire étendu.
+    """
+    try:
+        download_extended_inventory_file()
+    except Exception as e:
+        print(f"Une erreur est survenue lors du téléchargement de l'inventaire étendu : {e}")
+    return redirect(url_for('index'))
+# --- FIN DE LA NOUVELLE ROUTE ---
+
+@app.route('/lancer-telechargement-commodity', methods=['POST'])
+def lancer_telechargement_commodity():
+    """
+    Route pour démarrer le téléchargement des codes de commodité.
+    La transformation est appelée automatiquement à la fin.
+    """
+    try:
+        download_commodity_codes_file()
+    except Exception as e:
+        print(f"Une erreur est survenue lors du téléchargement des codes de commodité : {e}")
+    return redirect(url_for('index'))
+
 @app.route('/lancer-telechargement-catalogue/<string:catalog_name>', methods=['POST'])
 def lancer_telechargement_catalogue(catalog_name):
     """
-    Route dynamique pour télécharger n'importe quel catalogue spécifié.
+    Route dynamique pour démarrer le téléchargement d'un catalogue spécifique.
     """
+    if catalog_name not in CATALOGUES_A_GERER:
+        print(f"Erreur : Tentative de téléchargement d'un catalogue non géré : {catalog_name}")
+        return redirect(url_for('index'))
+    
     try:
         download_and_save_catalog_files(catalog_name=catalog_name)
-        flash(f"Téléchargement du catalogue '{catalog_name}' réussi.", "success")
     except Exception as e:
-        flash(f"Erreur lors du téléchargement du catalogue '{catalog_name}': {e}", "error")
+        print(f"Une erreur est survenue lors du téléchargement du catalogue '{catalog_name}': {e}")
     return redirect(url_for('index'))
 
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5001)
 

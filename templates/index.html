@@ -3,18 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau de Bord - E.T.F. Parts Canada</title>
+    <title>Tableau de Bord - ETL Parts Canada</title>
 </head>
 <body>
-    <div>
+    <div class="container">
+        <!-- Section pour afficher les messages de retour -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
         <h1>Fichiers Inventaire</h1>
-        
         <form action="{{ url_for('lancer_telechargement_inventaire') }}" method="post">
             <button type="submit">Démarrer le Téléchargement de l'Inventaire</button>
         </form>
         <h2>État du dossier d'inventaire</h2>
         {% if inventory_files %}
             <table border="1">
+                <!-- ... (table header) ... -->
                 <thead>
                     <tr>
                         <th>Nom</th>
@@ -40,37 +49,41 @@
         
         <hr>
 
-        <h1>Catalogues SNOW </h1>
-
-        <form action="{{ url_for('lancer_telechargement_catalogue_snow') }}" method="post">
-            <button type="submit">Démarrer le Téléchargement du Catalogue</button>
-        </form>
-        <h2>État du dossier Catalogue SNOW</h2>
-        {% if catalog_files %}
-             <table border="1">
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Type</th>
-                        <th>Dernière modification</th>
-                        <th>Taille (Mo)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in catalog_files %}
-                    <tr>
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.type }}</td>
-                        <td>{{ item.mod_date }}</td>
-                        <td>{{ item.size_mo }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>Le dossier <strong>CATALOGUE-SNOW</strong> est vide.</p>
+        <!-- Boucle dynamique pour générer les sections des catalogues -->
+        {% if catalog_data %}
+            {% for catalog_name, files in catalog_data.items() %}
+                <h1>Catalogue {{ catalog_name | capitalize }}</h1>
+                <form action="{{ url_for('lancer_telechargement_catalogue', catalog_name=catalog_name) }}" method="post">
+                    <button type="submit">Télécharger le Catalogue {{ catalog_name | capitalize }}</button>
+                </form>
+                <h2>État du dossier Catalogue</h2>
+                {% if files %}
+                     <table border="1">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Type</th>
+                                <th>Dernière modification</th>
+                                <th>Taille (Mo)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in files %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.type }}</td>
+                                <td>{{ item.mod_date }}</td>
+                                <td>{{ item.size_mo }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>Le dossier <strong>CATALOGUES-{{ catalog_name }}</strong> est vide.</p>
+                {% endif %}
+                <hr>
+            {% endfor %}
         {% endif %}
-
     </div>
 </body>
 </html>

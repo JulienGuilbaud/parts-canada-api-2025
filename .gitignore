@@ -10,4 +10,10 @@ venv/
 
 # Fichiers téléchargés par l'application
 INVENTAIRE-PARTS-CANADA/
+COMMODITY-CODES/
 CATALOGUES-snow/
+CATALOGUES-fatbook/
+CATALOGUES-street/
+CATALOGUES-atv-utv/
+CATALOGUES-offroad/
+CATALOGUES-tire-and-service/

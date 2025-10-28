@@ -1,4 +1,106 @@
-<!-- ... (code existant) ... -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord - ETL Parts Canada</title>
+</head>
+<body>
+    <div>
+        <h1>Fichiers Inventaire</h1>
+        <form action="{{ url_for('lancer_telechargement_inventaire') }}" method="post">
+            <button type="submit">Démarrer le Téléchargement de l'Inventaire</button>
+        </form>
+        <h2>État du dossier d'inventaire</h2>
+        {% if inventory_files %}
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Type</th>
+                        <th>Dernière modification</th>
+                        <th>Taille (Mo)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in inventory_files %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.type }}</td>
+                        <td>{{ item.mod_date }}</td>
+                        <td>{{ item.size_mo }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Le dossier <strong>INVENTAIRE-PARTS-CANADA</strong> est vide.</p>
+        {% endif %}
+
+        <hr>
+
+        <h1>Fichiers Inventaire Étendu</h1>
+        <form action="{{ url_for('lancer_telechargement_inventaire_etendu') }}" method="post">
+            <button type="submit">Démarrer le Téléchargement de l'Inventaire Étendu</button>
+        </form>
+        <h2>État du dossier d'inventaire étendu</h2>
+        {% if extended_inventory_files %}
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Type</th>
+                        <th>Dernière modification</th>
+                        <th>Taille (Mo)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in extended_inventory_files %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.type }}</td>
+                        <td>{{ item.mod_date }}</td>
+                        <td>{{ item.size_mo }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Le dossier <strong>INVENTAIRE-ETENDU-PARTS-CANADA</strong> est vide.</p>
+        {% endif %}
+
+        <hr>
+
+        <h1>Codes de Commodité</h1>
+        <form action="{{ url_for('lancer_telechargement_commodity') }}" method="post">
+            <button type="submit">Démarrer le Téléchargement des Codes de Commodité</button>
+        </form>
+        <h2>État du dossier des codes de commodité</h2>
+        {% if commodity_files %}
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Type</th>
+                        <th>Dernière modification</th>
+                        <th>Taille (Mo)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in commodity_files %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.type }}</td>
+                        <td>{{ item.mod_date }}</td>
+                        <td>{{ item.size_mo }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Le dossier <strong>COMMODITY-CODES</strong> est vide.</p>
+        {% endif %}
+
         <hr>
 
         <h1>Catalogues</h1>
@@ -10,8 +112,6 @@
             <form action="{{ url_for('lancer_telechargement_catalogue', catalog_name=catalog_name) }}" method="post" style="display: inline-block; margin-right: 10px;">
                 <button type="submit">Démarrer Téléchargement Catalogue ({{ catalog_name }})</button>
             </form>
-            
-            <!-- LE FORMULAIRE POUR LES FEATURES A ÉTÉ SUPPRIMÉ -->
 
             
             <h3>État du dossier {{ data.folder_name }} (Catalogue)</h3>
@@ -40,34 +140,6 @@
                 <p>Le dossier <strong>{{ data.folder_name }}</strong> est vide.</p>
             {% endif %}
 
-            <!-- TABLE POUR LES FEATURES (CONSERVÉE) -->
-            <h3>État du dossier {{ data.features_folder_name }} (Features)</h3>
-            {% if data.features_files %}
-                 <table border="1">
-                    <thead>
-                        <tr>
-                            <th>Nom</th>
-                            <th>Type</th>
-                            <th>Dernière modification</th>
-                            <th>Taille (Mo)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in data.features_files %}
-                        <tr>
-                            <td>{{ item.name }}</td>
-                            <td>{{ item.type }}</td>
-                            <td>{{ item.mod_date }}</td>
-                            <td>{{ item.size_mo }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p>Le dossier <strong>{{ data.features_folder_name }}</strong> est vide.</p>
-            {% endif %}
-            <!-- FIN DE LA NOUVELLE TABLE -->
-            
             <br>
         {% endfor %}
 

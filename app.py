@@ -4,7 +4,6 @@ from download_and_save_inventory import download_inventory_file
 from download_and_save_catalog_details import download_and_save_catalog_files
 from get_folder_info import get_folder_content
 from download_commodity_codes import download_commodity_codes_file
-from transform_commodity import transformer_codes_commodite
 from download_extended_inventory import download_extended_inventory_file
 # --- L'importation de 'download_product_features' est SUPPRIMÉE ---
 
@@ -37,15 +36,12 @@ def index():
     catalog_data = {}
     for catalog_name in CATALOGUES_A_GERER:
         folder_name = f"CATALOGUES-{catalog_name}"
-        # Définir le chemin du sous-dossier pour les features
-        features_folder_name = os.path.join(folder_name, "FEATURES")
+
 
         catalog_data[catalog_name] = {
             'name': catalog_name,
             'folder_name': folder_name,
             'files': get_folder_content(folder_name),
-            'features_folder_name': features_folder_name,
-            'features_files': get_folder_content(features_folder_name)
         }
 
     return render_template(
@@ -103,8 +99,6 @@ def lancer_telechargement_catalogue(catalog_name):
     except Exception as e:
         print(f"Une erreur est survenue lors du téléchargement du catalogue '{catalog_name}': {e}")
     return redirect(url_for('index'))
-
-# --- La route '/lancer-telechargement-features' a été SUPPRIMÉE ---
 
 
 if __name__ == '__main__':

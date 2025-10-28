@@ -10,6 +10,7 @@ venv/
 
 # Fichiers téléchargés par l'application
 INVENTAIRE-PARTS-CANADA/
+INVENTAIRE-ETENDU-PARTS-CANADA/
 COMMODITY-CODES/
 CATALOGUES-snow/
 CATALOGUES-fatbook/
@@ -20,3 +21,4 @@ CATALOGUES-bicycle/
 CATALOGUES-oldbook/
 CATALOGUES-tire-and-service/
 CATALOGUES-helmet-and-apparel/
+

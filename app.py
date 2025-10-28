@@ -15,8 +15,6 @@ CATALOGUES_A_GERER = [
     "street",
     "atv-utv",
     "offroad",
-    "helmet-and-apparel",
-    "bicycle",
     "tire-and-service",
     "oldbook"
 ]

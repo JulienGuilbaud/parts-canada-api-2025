@@ -1,5 +1,4 @@
 from flask import Flask, render_template, redirect, url_for, request
-import os # Importation de OS
 from download_and_save_inventory import download_inventory_file
 from download_and_save_catalog_details import download_and_save_catalog_files
 from get_folder_info import get_folder_content
@@ -100,7 +99,5 @@ def lancer_telechargement_catalogue(catalog_name):
         print(f"Une erreur est survenue lors du téléchargement du catalogue '{catalog_name}': {e}")
     return redirect(url_for('index'))
 
-
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001)
-
+    app.run(debug=True)

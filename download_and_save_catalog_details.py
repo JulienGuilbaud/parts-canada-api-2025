@@ -4,10 +4,7 @@ import os
 import sys
 from dotenv import load_dotenv
 
-# --- NOUVEL AJOUT ---
-# Importer la fonction pour télécharger les features
 from download_product_features import download_product_features_file
-# --- FIN DE L'AJOUT ---
 
 # Charger les variables d'environnement à partir du fichier .env
 load_dotenv()
@@ -127,11 +124,11 @@ def download_and_save_catalog_files(catalog_name: str):
             except Exception as e:
                 print(f"Erreur lors du nettoyage du fichier temporaire : {e}")
 
-
+# Test avec un catalogue (ex: "snow")
 if __name__ == "__main__":
     try:
         print("Lancement du test autonome pour le téléchargement de catalogue...")
-        # Test avec un catalogue (ex: "snow")
+       
         download_and_save_catalog_files(catalog_name="snow")
         print("Test autonome terminé avec succès.")
     except Exception as e:

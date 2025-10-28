@@ -1,7 +1,6 @@
 import requests
 import zipfile
 import os
-import sys
 from dotenv import load_dotenv
 
 # Charger les variables d'environnement à partir du fichier .env
@@ -19,10 +18,10 @@ def download_product_features_file(catalog_name: str):
     base_url = os.getenv("API_BASE_URL")
     bearer_token = os.getenv("PARTS_CANADA_API_TOKEN")
 
-    # --- MODIFICATION ---
-    # Le dossier cible est maintenant le dossier parent du catalogue
+    
+    # Le dossier cible est le dossier parent du catalogue
     target_folder = f"CATALOGUES-{catalog_name}"
-    # --- FIN MODIFICATION ---
+   
 
     endpoint = f"/products/features/{catalog_name}/download"
 
@@ -40,7 +39,6 @@ def download_product_features_file(catalog_name: str):
     }
 
     # Nom du fichier ZIP temporaire (placé dans le dossier cible)
-    # --- MODIFICATION ---
     # S'assurer que le dossier cible existe avant de définir le chemin temporaire
     if not os.path.exists(target_folder):
          os.makedirs(target_folder)
@@ -53,13 +51,10 @@ def download_product_features_file(catalog_name: str):
 
     try:
         # Étape 1 : Vérifier/Créer le dossier cible (déplacé avant temp_zip_path)
-        # --- MODIFICATION ---
-        # Cette vérification est maintenant faite avant la définition de temp_zip_path
-        # On ajuste juste le message ici si le dossier existe déjà
         if os.path.exists(target_folder):
              print(f"1/4. Le dossier '{target_folder}' existe déjà.")
-        # --- FIN MODIFICATION ---
-
+        else:
+             print(f"1/4. Dossier '{target_folder}' N'existe pas")
 
         # Étape 2 : Télécharger le fichier ZIP
         print("2/4. Téléchargement du fichier ZIP en cours...")
@@ -96,17 +91,16 @@ def download_product_features_file(catalog_name: str):
                            total_mb = total_size / (1024 * 1024)
                            print(f"\r     [{'=' * int(progress / 4):<25}] {downloaded_mb:.2f} Mo / {total_mb:.2f} Mo", end='')
 
-        print()
-        print("     Téléchargement du ZIP réussi.")
+        print("Téléchargement du ZIP réussi.")
 
         # Étape 3 : Décompresser le fichier ZIP
         print("3/4. Décompression du fichier en cours...")
         with zipfile.ZipFile(temp_zip_path, 'r') as zf:
-            # --- MODIFICATION ---
-            # Extrait directement dans target_folder (qui est maintenant le dossier parent)
+            
+            # Extrait directement dans target_folder
             zf.extractall(target_folder)
             print(f"     Fichiers extraits avec succès dans '{target_folder}'.")
-            # --- FIN MODIFICATION ---
+            
 
         # Étape 4 : Nettoyage
         print("4/4. Nettoyage du fichier ZIP temporaire...")
@@ -140,11 +134,11 @@ def download_product_features_file(catalog_name: str):
             except Exception as e:
                 print(f"Erreur lors du nettoyage final du fichier temporaire : {e}")
 
-
+# Teste avec fatbook
 if __name__ == "__main__":
     try:
         print("Test du module de téléchargement des product features...")
-        download_product_features_file(catalog_name="fatbook") # Teste avec fatbook
+        download_product_features_file(catalog_name="fatbook")
         print("\nTest autonome terminé.")
     except Exception as e:
         print(f"\nLe test autonome a échoué : {e}")

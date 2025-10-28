@@ -75,8 +75,9 @@ def transformer_codes_commodite():
         print(f"Une erreur inattendue est survenue lors de la transformation : {e}")
         raise
 
+# Test autonome du module
 if __name__ == "__main__":
-    # Test autonome du module
+
     print("--- Test de transformation des codes de commodité ---")
     try:
         transformer_codes_commodite()

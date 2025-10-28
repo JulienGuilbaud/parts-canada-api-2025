@@ -99,9 +99,8 @@ def download_extended_inventory_file():
             except Exception as e:
                 print(f"Erreur lors du nettoyage du fichier temporaire : {e}")
 
-
+# Ce bloc permet de tester le script de manière autonome
 if __name__ == "__main__":
-    # Ce bloc permet de tester le script de manière autonome
     try:
         print("Test du module de téléchargement de l'inventaire étendu...")
         download_extended_inventory_file()

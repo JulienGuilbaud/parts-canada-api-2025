@@ -39,11 +39,7 @@ if __name__ == "__main__":
 
     # 1. Définir et créer un environnement de test.
     test_folder = "CATALOGUES-snow"
-    
-
     print(f"--- Début du test pour get_folder_content ---")
-    
-
     # 2. Appeler la fonction à tester sur le dossier existant.
     print(f"\nAppel de get_folder_content('{test_folder}')...")
     folder_contents = get_folder_content(test_folder)

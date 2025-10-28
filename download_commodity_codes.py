@@ -3,7 +3,8 @@ import zipfile
 import os
 import sys
 from dotenv import load_dotenv
-from transform_commodity import transformer_codes_commodite # Importe la fonction de transformation
+# Importe la fonction de transformation
+from transform_commodity import transformer_codes_commodite
 
 # Charger les variables d'environnement à partir du fichier .env
 load_dotenv()
@@ -105,9 +106,8 @@ def download_commodity_codes_file():
             except Exception as e:
                 print(f"Erreur lors du nettoyage du fichier temporaire : {e}")
 
-
+# Ce bloc permet de tester le script de manière autonome
 if __name__ == "__main__":
-    # Ce bloc permet de tester le script de manière autonome
     try:
         print("Test du module de téléchargement des codes de commodité...")
         download_commodity_codes_file()

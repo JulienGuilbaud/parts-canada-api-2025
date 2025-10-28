@@ -95,9 +95,9 @@ def download_inventory_file(endpoint: str):
     except Exception as e:
         print(f"Une erreur inattendue est survenue : {e}")
         raise
-
+    
+# Ce bloc permet de tester le script de manière autonome
 if __name__ == "__main__":
-    # Ce bloc permet de tester le script de manière autonome
     try:
         print("Test du module de téléchargement en mode autonome...")
         download_inventory_file(

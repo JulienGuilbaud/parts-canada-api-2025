@@ -3,7 +3,7 @@ import os
 
 # --- Configuration ---
 # Chemin vers votre fichier CSV d'origine
-FICHIER_ENTREE = r"INVENTAIRE-PARTS-CANADA\PartsCanadaCSV_8374000.csv"
+FICHIER_ENTREE = r"INVENTAIRE-PARTS-CANADA\PartsCanada_with_Features.csv"
 
 # Répertoire où les fichiers filtrés seront sauvegardés
 REPERTOIRE_SORTIE = r"MICPARTSONLINE"
@@ -75,7 +75,7 @@ def filtrer_par_code(target_code: str):
         df_odoo['Product Type'] = 'Storable Product'
         #Remplissge du prix
         df_odoo['Sales Price'] = df_filtre['MSRP Latest'].fillna(0)
-        df_odoo['Detailed Price'] = df_filtre['MSRP Latest'].fillna(0) # CORRECTION: MSAP -> MSRP
+        df_odoo['Detailed Price'] = df_filtre['MSRP Latest'].fillna(0)
         df_odoo['Cost'] = df_filtre['Dealer Discounted Price'].fillna(0)
         # Remplissage par default
         df_odoo['Unit of Measure'] = 'Units'
@@ -99,9 +99,11 @@ def filtrer_par_code(target_code: str):
             '<br />' + 
             df_filtre['Brand'].fillna('') + ' ' +
             df_filtre['Manufacturer Part Number'].fillna('') + ' ' +
-            df_filtre['Description EN'].fillna('')
+            df_filtre['Description EN'].fillna('') +
+            '<br />' +
+            df_filtre['Features'].fillna('')
         )
-        # --- FIN MODIFICATION ---
+        
 
 
         # --- MODIFICATION ICI pour description_fr ---
@@ -115,7 +117,9 @@ def filtrer_par_code(target_code: str):
             '<br />' + 
             df_filtre['Brand'].fillna('') + ' ' +
             df_filtre['Manufacturer Part Number'].fillna('') + ' ' +
-            desc_fr_with_fallback.fillna('')
+            desc_fr_with_fallback.fillna('') +
+            '<br />' +
+            df_filtre['Features'].fillna('')
         )
         # --- FIN MODIFICATION ---
         

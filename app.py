@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request
-from download_and_save_inventory import download_inventory_file
+from telecharger_inventaire import download_inventory_file
+from combiner_features import lancer_combinaison_caracteristiques
 from download_and_save_catalog_details import download_and_save_catalog_files
 from get_folder_info import get_folder_content
 from download_commodity_codes import download_commodity_codes_file
@@ -56,6 +57,10 @@ def lancer_telechargement_inventaire():
     """
     try:
         download_inventory_file(endpoint="/inventory")
+        print("\n--- DÉBUT ÉTAPE 2: COMBINAISON DES CARACTÉRISTIQUES ---")
+        # Appelle la fonction qui contient la logique de combinaison
+        lancer_combinaison_caracteristiques()
+        print("--- ÉTAPE 2 TERMINÉE: Combinaison réussie ---")
     except Exception as e:
         print(f"Une erreur est survenue lors du téléchargement de l'inventaire : {e}")
     return redirect(url_for('index'))
